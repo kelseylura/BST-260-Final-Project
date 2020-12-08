@@ -1,0 +1,269 @@
+---
+title: "Project"
+output: html_document
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(zoo)
+library(maps)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(readr)
+library(ggthemes)
+library(rvest)
+library(RColorBrewer)
+library(gridExtra)
+```
+
+#CDC data set prevalence plots 
+
+```{r, message=FALSE, warning=FALSE}
+#read in csv 
+#source: https://data.cdc.gov/Disability-Health/DHDS-Prevalence-of-Disability-Status-and-Types-by-/qjg3-6acf
+disability = read_csv("us_disabilities_2018.csv")
+
+
+disability_2 <- disability %>% select(LocationAbbr, LocationDesc, Response, Data_Value_Type, Data_Value, StratificationCategory1, Stratification1, IndicatorID)
+
+disability_US <- disability_2 %>% filter(LocationAbbr == "US") 
+
+disability_US$Stratification1 <- factor(disability_US$Stratification1, levels = c("No Disability", "Any Disability", "Cognitive Disability", "Hearing Disability", "Mobility Disability", "Vision Disability", "Self-care Disability", "Independent Living Disability"))
+```
+
+
+```{r}
+#Disability by Veteran Status
+
+disability_US %>% filter(IndicatorID == "VETIND") %>%
+   filter(Stratification1 != "No Disability") %>% 
+    filter(Stratification1 != "Any Disability") %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0, 30)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Type", labels = c("Cognitive", "Hearing", "Mobility", "Vision", "Self-care", "Independent Living")) +
+  ggtitle("Prevalence of Disability Type by Veteran Status") +
+  theme_clean()+
+  xlab("Veteran Status") +
+  ylab("Prevalence (%)") 
+
+disability_US %>% filter(IndicatorID == "VETIND") %>%
+    filter(Stratification1 %in% c("No Disability", "Any Disability")) %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Status", labels = c("No Disability", "Any Disability")) +
+  ggtitle("Prevalence of Disabilities by Veteran Status") +
+  theme_clean()+
+  xlab("Veteran Status") +
+  ylab("Prevalence (%)")
+```
+
+
+```{r}
+#Disability by Age Group 
+
+disability_US %>% filter(IndicatorID == "AGEIND") %>%
+  filter(Stratification1 != "No Disability") %>% 
+    filter(Stratification1 != "Any Disability") %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0, 30)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Type", labels = c("Cognitive", "Hearing", "Mobility", "Vision", "Self-care", "Independent Living")) +
+    ggtitle("Prevalence of Disability Type by Age Group") +
+  theme_clean()+
+  xlab("Age Group") +
+  ylab("Prevalence (%)") 
+
+disability_US %>% filter(IndicatorID == "AGEIND") %>%
+  filter(Stratification1 %in% c("No Disability", "Any Disability")) %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Status", labels = c("No Disability", "Any Disability")) +
+    ggtitle("Prevalence of Disabilities by Age Group") +
+  theme_clean()+
+  xlab("Age Group") +
+  ylab("Prevalence (%)")
+```
+
+
+```{r}
+#Disability by Sex
+
+disability_US %>% filter(IndicatorID == "SEXIND") %>%
+  filter(Stratification1 != "No Disability") %>% 
+    filter(Stratification1 != "Any Disability") %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0, 30)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Type", labels = c("Cognitive", "Hearing", "Mobility", "Vision", "Self-care", "Independent Living"))+
+    ggtitle("Prevalence of Disability Type by Sex") +
+  theme_clean()+
+  xlab("Sex") +
+  ylab("Prevalence (%)")  
+
+disability_US %>% filter(IndicatorID == "SEXIND") %>% filter(Stratification1 %in% c("No Disability", "Any Disability")) %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0,100)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Status", labels = c("No Disability", "Any Disability")) +
+  ggtitle("Prevalence of Disabilities by Sex") +
+  theme_clean()+
+  xlab("Sex") +
+  ylab("Prevalence (%)")
+```
+
+
+```{r}
+#Disability by Race/Ethnicity
+
+disability_US %>% filter(IndicatorID == "RACEIND") %>% 
+    filter(Stratification1 != "No Disability") %>% 
+    filter(Stratification1 != "Any Disability") %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0, 30)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Type", labels = c("Cognitive", "Hearing", "Mobility", "Vision", "Self-care", "Independent Living")) +
+  scale_x_discrete(labels = c("American \nIndian \nor Alaska \nNative", "Native \nHawaiian \nor Other \nPacific \nIslander", "Black", "White", "Asian", "Hispanic", "Other / \nMultirace"))+
+  ggtitle("Prevalence of Disability Type by Race/Ethnicity") +
+  theme_clean()+
+  xlab("Race/Ethnicity") +
+  ylab("Prevalence (%)")
+
+disability_US %>% filter(IndicatorID == "RACEIND") %>% filter(Stratification1 %in% c("No Disability", "Any Disability")) %>%
+  ggplot(aes(Response, Data_Value, fill = Stratification1)) +
+  geom_bar(stat = "identity", position = "dodge")+
+  coord_cartesian(ylim = c(0,100)) +
+  scale_fill_brewer(palette = "Set1", name = "Disability Status", labels = c("No Disability", "Any Disability")) +
+  scale_x_discrete(labels = c("American \nIndian \nor Alaska \nNative", "Native \nHawaiian \nor Other \nPacific \nIslander", "Black", "White", "Asian", "Hispanic", "Other / \nMultirace"))+
+  ggtitle("Prevalence of Disabilities by Race/Ethnicity") +
+  theme_clean()+
+  xlab("Race/Ethnicity") +
+  ylab("Prevalence (%)")
+
+```
+
+### Web scraping 
+### Source for all: https://disabilitystatistics.org/reports/2018/English/HTML/report2018.cfm?fips=2000000&html_year=2018&subButton=Get+HTML#emp-state
+### US data from 2018 American Community Survey (ACS)
+
+
+```{r}
+#Web Scraping Table "Prevalence: Ages 21 - 64"
+#prevlance of disability 
+
+url <- "https://disabilitystatistics.org/reports/2018/English/HTML/report2018.cfm?fips=2000000&html_year=2018&subButton=Get+HTML#emp-state"
+
+web_scrap <- read_html(url)
+
+tables <- web_scrap %>% html_nodes("table")
+
+table_1 <- tables %>% html_table(fill = TRUE) %>% .[[1]] 
+
+table_1 <- table_1 %>% setNames(c("location_1", "prevalence_1", "location_2", "prevalence_2")) 
+
+table_1 <- table_1 %>% spread(location_1, prevalence_1)
+table_1 <- table_1 %>% spread(location_2, prevalence_2)
+
+table_1 <- table_1 %>% gather(location, prevalence) %>% na.omit()
+```
+
+
+```{r}
+#Web Scraping Table "Employment: Ages 21 - 64"
+#Employment Rate for people with disabilities 
+
+table_2 <- tables %>% html_table(fill = TRUE) %>% .[[2]] 
+
+table_2 <- table_2 %>% setNames(c("location_1", "prevalence_with_1", "prevalence_without_1", 
+                                  "location_2", "prevalence_with_2", "prevalence_without_2")) %>%
+                      select(location_1, prevalence_with_1, location_2, prevalence_with_2)
+
+table_2 <- table_2 %>% spread(location_1, prevalence_with_1)
+table_2 <- table_2 %>% spread(location_2, prevalence_with_2)
+
+table_2 <- table_2 %>% gather(location, employment_rate) %>% na.omit()
+
+head(table_2)
+```
+
+
+```{r}
+#Table 3
+#Web Scraping Table "Employment of non-institutionalized working-age people (ages 21 to 64) by disability status in the United States in 2018"
+
+table_3 <- tables %>% html_table(fill = TRUE) %>% .[[13]] 
+
+table_3 <- table_3 %>% setNames(c("disability_type", "percent_employed", "MOE", 
+                                  "number", "MOE_2", "base_pop", "sample_size")) %>%
+                      select(disability_type, percent_employed)
+
+#Table 4
+# Web scraping table: "Median annual income* of households including any working-age people (ages 21 to 64) by disability status in the United States in 2018"
+
+table_4 <- tables %>% html_table(fill = TRUE) %>% .[[17]] 
+
+table_4 <- table_4 %>% setNames(c("disability_type", "median_hh_income", "MOE", 
+                                  "base_pop", "sample_size")) %>%
+                      select(disability_type, median_hh_income)
+
+#Table 5
+# Web scraping table: "Median annual earnings of non-institutionalized working-age people (ages 21 to 64) who work full-time/full-year by disability status in the United States in 2018"
+
+table_5 <- tables %>% html_table(fill = TRUE) %>% .[[16]] 
+table_5 <- table_5 %>% setNames(c("disability_type", "median_earnings", "MOE", 
+                                  "base_pop", "sample_size")) %>%
+                      select(disability_type, median_earnings)
+
+#Table 6
+#Web scraping table: "Percentage of non-institutionalized working-age people (ages 21 to 64) with a Bachelor's degree or more by disability status in the United States in 2018"
+
+table_6 <- tables %>% html_table(fill = TRUE) %>% .[[22]] 
+table_6 <- table_6 %>% setNames(c("disability_type", "percent_bachelor", "MOE", "number", "MOE", 
+                                  "base_pop", "sample_size")) %>%
+                      select(disability_type, percent_bachelor)
+
+#Joining tables
+table_join_1 <- full_join(table_3, table_4, by = "disability_type")
+table_join_2 <- full_join(table_join_1, table_5, by = "disability_type")
+table_final <- full_join(table_join_2, table_6, by = "disability_type")
+
+head(table_final)
+```
+
+```{r}
+#Plot base for shiny app
+
+table_final$disability_type <- factor(table_final$disability_type, levels = c("No Disability", "Any Disability", "Visual", "Hearing", "Ambulatory", "Cognitive", "Self-Care", "Independent Living"))
+      
+
+table_final %>%
+  ggplot() +
+  geom_bar(aes(disability_type, percent_employed), stat = "identity", fill = "dark blue")+
+  theme_bw() +
+  ggtitle("Percent of people ages 21 to 64 employed \nby disability status in the United States in 2018") +
+  xlab("\nDisability Type")+
+  ylab("Percent Employed\n")+
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_x_discrete(labels = c("No Disability", "Any \nDisability", "Visual", "Hearing", "Ambulatory", "Cognitive", "Self-Care", "Independent \nLiving"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
