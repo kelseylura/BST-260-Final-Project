@@ -18,7 +18,25 @@ library(RColorBrewer)
 library(gridExtra)
 ```
 
-#CDC data set prevalence plots 
+##Overview and Motivation
+*Motivated by our shared expertise and interests related to social determinants of health, we aim to apply a social and behavioral science lens to explore health disparities in disability status. According to the [CDC](https://www.cdc.gov/ncbddd/disabilityandhealth/infographic-disability-impacts-all.html), one in four American adults has a disability. Globally, the [United Nations](https://www.un.org/disabilities/documents/toolaction/pwdfs.pdf) identified people with disabilities as "the world's largest minority." However, to date, public health research directs limited resources to studying and addressing health disparities within this population. Not only do people with disabilities face challenges with their overall health, but they also experience significant disadvantages with educational and occupational attainment. In order to promote disability inclusion and make sure individuals with disabilities have equal opportunities to participate in and contribute to society, it's important to understand who is most at risk and why. Through our project, we investigate potential correlations between various sociodemographic factors, including race/ethnicity, gender, age, veteran status, and socioeconomic status, and disability status among adults across the U.S. We hope that research in this understudied area will give more public health focus to people with disabilities and identify approaches to target resources towards those with the highest needs.*
+
+##Related Work
+*Researchers from the [Collaborative on Health Reform and Independent Living](https://www.chril.org/) recently released a [report](https://static1.squarespace.com/static/5abe7e9b5ffd206d61d648ef/t/5f80b97ec617441793f29090/1602271616411/CHRIL+Disparities+Report.pdf) among the first of its kind to provide public health advocates and policymakers with existing evidence on individuals with disabilities experience relative social disadvantages compared to those without disabilities. Using data from the 2018 National Health Interview Survey, the authors found that working-age adults with disabilities face systemic disadvantages in every domain of social determinants of health, including economic stability, education, healthcare, neighborhood and built environment, and social/community context. Based on these new findings, we were inspired to further explore the rates of disability in specific minority groups to assess the potential health and social effects  of membership in multiple marginalized groups.*
+
+*We were also interested in investigating disability-based disparities because two of our team members have recent experience doing research work related to disability. *
+
+##Initial Questions 
+
+##Data
+
+*The CDC created the [Disability and Health Data System (DHDS)](https://www.cdc.gov/ncbddd/disabilityandhealth/dhds/index.html) to provide epidemiologists, researchers, and public health professionals with accessible data on demographics and health outcomes for adults with disabilities. The DHDS obtained and analyzed data from the 2016-2018 Behavioral Risk Factor Surveillance System (BRFSS) reports.*
+
+##Exploratory Analysis 
+
+##Final Analysis 
+
+###CDC data set prevalence plots 
 
 ```{r, message=FALSE, warning=FALSE}
 #read in csv 
