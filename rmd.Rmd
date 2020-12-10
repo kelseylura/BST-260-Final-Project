@@ -54,11 +54,57 @@ Our primary source of data was the [Disability and Health Data System (DHDS)](ht
 
 #### *Summary Statistics*
 
-The DHDS data was clean to begin with, so the cleanup was very straightforward. We chose to delete out some of the variables to make the dataset more manageable, but that was not necessary for running the analyses. We knew that the data had information on the prevalence of disability in the United States for 2018, and the data was disaggregated by disability type and socioeconomic status (age group, veteran status, race/ethnicity, and sex). We decided to separate the summary plots by socioeconomic status first, so that we could see the trends in prevalence for the different groups. After that, we realized that plotting "Any Disability" and "No Disability" on the same visualization as the individual disability types did not allow us to see the differences across groups very well, and decided to separate that data into different plots. 
+Tge DHDS data was clean to begin with, so the cleanup was very straightforward. We chose to delete out some of the variables to make the dataset more manageable, but that was not necessary for running the analyses. We knew that the data had information on the prevalence of disability in the United States for 2018, and the data was disaggregated by disability type and socioeconomic status (age group, veteran status, race/ethnicity, and sex). We decided to separate the summary plots by socioeconomic status first, so that we could see the trends in prevalence for the different groups. After that, we realized that plotting "Any Disability" and "No Disability" on the same visualization as the individual disability types did not allow us to see the differences across groups very well, and decided to separate that data into different plots. 
 
 #### *Heatmaps*
 
-The DHDS data was aggregated to show state-level prevalence of *any* type of disability by sociodemographic factors, which is what we chose to look at to create our heatmaps.After downloading the data from the CDC's website and uploading the data as a CSV file to R, we cleaned the data by only keeping columns that would be relevant to this analysis. We filtered the data to show only show the aggregated "any disability" rates and also filtered out regions that would not appear on the U.S. heatmap but were present in the data (e.g. Guam, Puerto Rico, Health and Human Service Regions). The state names in the dataset next had to be converted to lowercase before it could be joined with the U.S. map data. Once the cleaned disability file was joined with the U.S. state map data, we made individual color keys for each of the four sociodemographic factors (as the prevalence ranges were very different) and then made the graphs.
+The DHDS data was aggregated to show state-level prevalence of *any* type of disability by sociodemographic factors, which is what we chose to look at to create our heatmaps.After downloading the data from the CDC's website and uploading the data as a CSV file to R, we cleaned the data by only keeping columns that would be relevant to this analysis. We filtered the data to show only show the aggregated "any disability" rates and also filtered out regions that would not appear on the U.S. heatmap but were present in the data (e.g. Guam, Puerto Rico, Health and Human Service Regions). The state names in the dataset next had to be converted to lowercase before it could be joined with the U.S. map data. Once the cleaned disability file was joined with the U.S. state map data, we made individual color keys for each of the four sociodemographic factors (as the prevalence ranges were very different) and then made the graphs. The code for the cleaning is shown below:
+
+```{r}
+#read in files
+disability <- read_csv("us_disabilities_2018.csv")
+us_states <- map_data("state")
+
+#clean files
+disability_clean <- disability[c(2,3,6,7,10,19)] 
+disability_clean$LocationDesc <- tolower(disability_clean$LocationDesc)
+disability_clean <- disability_clean %>% filter(Stratification1=="Any Disability") %>% filter(!grepl("HHS", LocationAbbr)) %>% filter(!grepl("GU", LocationAbbr)) %>% filter(!grepl("PR", LocationAbbr)) %>% filter(!grepl("US", LocationAbbr))
+
+#join files
+disability_map <- left_join(us_states, disability_clean, by = c("region" = "LocationDesc"))
+
+#SETTING COLOR KEYS:
+#gender
+disability_map <- disability_map %>% mutate(manual_fill_gender = cut(Data_Value, 
+                                                    breaks = c(-Inf, 20, 25.1, 30.1, 35, Inf),
+                                                    labels = c("<20", "20-25", "25.1-30", "30.1-35", ">35"), 
+                                                    right = TRUE))
+
+gender <- c("lightskyblue2", "dodgerblue3", "dodgerblue4", "red", "red4")
+
+#race/ethnicity
+disability_map <- disability_map %>% mutate(manual_fill_race = cut(Data_Value, 
+                                                    breaks = c(-Inf, 10, 20.1, 30.1, 40, Inf),
+                                                    labels = c("<10", "10-20", "20.1-30", "30.1-40", ">40"), 
+                                                    right = TRUE))
+race <- c("lightskyblue2", "dodgerblue3", "dodgerblue4", "red", "red4")
+
+#age
+disability_map <- disability_map %>% mutate(manual_fill_age = cut(Data_Value, 
+                                                    breaks = c(-Inf, 15, 30.1, 45.1, 60, Inf),
+                                                    labels = c("<15", "15-30", "30.1-45", "45.1-60", ">60"), 
+                                                    right = TRUE))
+age <- c("lightskyblue2", "dodgerblue3", "dodgerblue4", "red", "red4")
+
+#veteran status
+disability_map <- disability_map %>% mutate(manual_fill_vet = cut(Data_Value, 
+                                                    breaks = c(-Inf, 27, 28.1, 29.1, 30, Inf),
+                                                    labels = c("<27", "27.1-28", "28.1-29", "29.1-30", ">30"), 
+                                                    right = TRUE))
+vet <- c("lightskyblue2", "dodgerblue3", "dodgerblue4", "red", "red4")
+
+```
+```
 
 #### *Web Scraping* 
 
@@ -299,19 +345,87 @@ disability_US %>% filter(IndicatorID == "RACEIND") %>% filter(Stratification1 %i
 
 #### *Heatmaps*
 
-After exploring summary statistics in out data, we visualized our data through individual graphs of each sociodemographic factor on an individual level (i.e. we made a graph for disability for each race/ethnic group) as shown below:
+After exploring summary statistics in out data, we visualized our data through individual graphs of each sociodemographic factor on an individual level (i.e. we made a graph for disability for each race/ethnic group). These graphs for race/ethnivity are shown below:
 
-![](white.png){ width=50% }
-![](black.png){ width=50% } 
-![](hispanic.png){ width=50% }
-![](asian.png){ width=50% }
-![](native.png){ width=50% }
-![](other.png){ width=50% }
-![](hawaiian.png){ width=50% }
-<br />
+```{r}
+#RACE: INIDIVUAL GRAPHS
+#white
+disability_map %>% filter(Response=="White, non-Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: White, non Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#black
+disability_map %>% filter(Response=="Black, non-Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: Black, non Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#hispanic
+disability_map %>% filter(Response=="Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#native american/alaskan
+disability_map %>% filter(Response=="American Indian or Alaska Native, non-Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: American Indian or Alaska Native, non-Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#asian
+disability_map %>% filter(Response=="Asian, non-Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: Asian, non-Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#native hawaiian/pi
+disability_map %>% filter(Response=="Native Hawaiian or Other Pacific Islander, non-Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: Native Hawaiian or Other Pacific Islander, non-Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#other/multirace
+disability_map %>% filter(Response=="Other / Multirace, non-Hispanic") %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "white") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity: Other / Multirace, non-Hispanic") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+```
+
 However, we realized looking at these graphs one by one made it hard to compare differences in disability prevalence between different groups and different states. Because of this, we chose to combine graphs for each sociodemographic characteristic in multi-panel plots. To make it easier to delineate specific states, we also added colored boundary lines. For race, we chose to leave out data for the "Native Hawaiian or Other Pacific Islander" group as there were only two states that provided data for this. As you can see below, having the graphs next to each other makes it much easier to make comparisons and see differences:
- 
-![](all.png){ width=50% }
+
+```{r} 
+#change facet grid labels
+race_names <- c(
+  "White, non-Hispanic" = "White",
+  "Black, non-Hispanic" = "Black",
+  "Hispanic" = "Hispanic",
+  "Asian, non-Hispanic" = "Asian",            
+  "American Indian or Alaska Native, non-Hispanic" = "Native American or Alaskan",
+  "Other / Multirace, non-Hispanic" = "Other/Multirace")
+
+disability_map %>% filter(Response %in% c("White, non-Hispanic", "Black, non-Hispanic", "Hispanic", "Asian, non-Hispanic", "American Indian or Alaska Native, non-Hispanic", "Other / Multirace, non-Hispanic")) %>% ggplot(aes(x = long, y = lat, fill=Data_Value, group=group)) + geom_polygon(aes(fill=manual_fill_race), color = "gray85") + coord_fixed(1.3) + scale_fill_manual(name = "Age-Adjusted Prevalence (%)", values = race, drop = F) + ggtitle("Disability Prevalence by Race/Ethnicity") + labs(caption= "*Disability data for Native Hawaiian or Other Pacific Islander not shown due to lack of data") +
+  theme(panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) + facet_wrap(~ Response, labeller=as_labeller(race_names))
+```
 
 #### *Web Scraping*
 
@@ -438,19 +552,3 @@ From our regression analysis, we learned that the prevalence of disabilities doe
       select(Group, Analysis)
     cdc_analysis
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
