@@ -201,6 +201,16 @@ table_final$disability_type <- factor(table_final$disability_type,
                                                  "Visual", "Hearing", "Ambulatory", 
                                                  "Cognitive", "Self-Care", "Independent Living"))
 
+#String Processing - Changing Median Household Income from Character to Numeric 
+table_final$median_hh_income <- str_replace_all(table_final$median_hh_income, ",", "")
+table_final$median_hh_income <- str_replace_all(table_final$median_hh_income, "\\$", "")
+table_final$median_hh_income <- as.numeric(table_final$median_hh_income)
+
+#String Processing - Changing Median Annual Earnings from Character to Numeric 
+table_final$median_earnings <- str_replace_all(table_final$median_earnings, ",", "")
+table_final$median_earnings <- str_replace_all(table_final$median_earnings, "\\$", "")
+table_final$median_earnings <- as.numeric(table_final$median_earnings)
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -367,7 +377,9 @@ server <- function(input, output) {
                 xlab("\nDisability Type")+
                 ylab("Median Household Income (in dollars)\n")+
                 scale_x_discrete(labels = c("No Disability", "Any \nDisability", "Visual", "Hearing", "Ambulatory", "Cognitive", 
-                                            "Self-Care", "Independent \nLiving"))
+                                            "Self-Care", "Independent \nLiving")) +
+               scale_y_continuous(labels=scales::dollar_format()) +
+               coord_cartesian(ylim = c(0, 80000)) 
             
         } else {
             
@@ -378,10 +390,12 @@ server <- function(input, output) {
                 ggtitle("Median Annual Earnings of People, Ages 21-64, \nby Disability Status") +
                     theme(plot.title = element_text(hjust = 0.5, face = "bold", size = (13))) +
                 xlab("\nDisability Type")+
-                ylab("Median Earnings (in dollars)" )+
+                ylab("Median Earnings (in dollars)\n" )+
                 scale_x_discrete(labels = c("No Disability", "Any \nDisability", "Visual", "Hearing", 
                                             "Ambulatory", "Cognitive", 
-                                            "Self-Care", "Independent \nLiving")) 
+                                            "Self-Care", "Independent \nLiving")) +
+               scale_y_continuous(labels=scales::dollar_format()) +
+               coord_cartesian(ylim = c(0, 80000)) 
         }
     })
     
