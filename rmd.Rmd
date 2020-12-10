@@ -309,9 +309,9 @@ After exploring summary statistics in out data, we visualized our data through i
 ![](other.png){ width=50% }
 ![](hawaiian.png){ width=50% }
 <br />
-However, we realized looking at these graphs one by one made it hard to compare differences in disability prevalence between different groups and different states. Because of this, we chose to combine graphs for each sociodemographic characteristic in multi-panel plots. For race, we chose to leave out data for the "Native Hawaiian or Other Pacific Islander" group as there were only two states that provided data for this. As you can see below, having the graphs next to each other makes it much easier to make comparisons and see differences:
+However, we realized looking at these graphs one by one made it hard to compare differences in disability prevalence between different groups and different states. Because of this, we chose to combine graphs for each sociodemographic characteristic in multi-panel plots. To make it easier to delineate specific states, we also added colored boundary lines. For race, we chose to leave out data for the "Native Hawaiian or Other Pacific Islander" group as there were only two states that provided data for this. As you can see below, having the graphs next to each other makes it much easier to make comparisons and see differences:
  
-__Need to include all.png__
+![](all.png){ width=50% }
 
 #### *Web Scraping*
 
