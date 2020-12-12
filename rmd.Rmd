@@ -3,6 +3,10 @@ title: "Exploration of Disability Status in the U.S. by Sociodemographic Factors
 output: html_document
 ---
 
+### Group Members: Kelsey Hunt, Wendy Ji, Santana Silver, Sarah Page
+
+#### Please find our data file in the GitHub Repository, named "us_disabilities_2018.csv"
+
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
