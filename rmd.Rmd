@@ -104,7 +104,7 @@ disability_map <- disability_map %>% mutate(manual_fill_vet = cut(Data_Value,
 vet <- c("lightskyblue2", "dodgerblue3", "dodgerblue4", "red", "red4")
 
 ```
-```
+
 
 #### *Web Scraping* 
 
@@ -324,22 +324,22 @@ disability_US %>% filter(IndicatorID == "RACEIND") %>%
   geom_bar(stat = "identity", position = "dodge")+
   coord_cartesian(ylim = c(0, 30)) +
   scale_fill_brewer(palette = "Set1", name = "Disability Type", labels = c("Cognitive", "Hearing", "Mobility", "Vision", "Self-care", "Independent Living")) +
-  scale_x_discrete(labels = c("American \nIndian \nor Alaska \nNative", "Native \nHawaiian \nor Other \nPacific \nIslander", "Black", "White", "Asian", "Hispanic", "Other / \nMultirace"))+
   ggtitle("Prevalence of Disability Type by Race/Ethnicity") +
   theme_clean()+
   xlab("Race/Ethnicity") +
-  ylab("Prevalence (%)")
+  ylab("Prevalence (%)") +
+  scale_x_discrete(labels = c("American \nIndian \nor Alaska \nNative", "Asian", "Black", "Hispanic", "Native \nHawaiian \nor Other \nPacific \nIslander", "Other / \nMultirace", "White"))
 
 disability_US %>% filter(IndicatorID == "RACEIND") %>% filter(Stratification1 %in% c("No Disability", "Any Disability")) %>%
   ggplot(aes(Response, Data_Value, fill = Stratification1)) +
   geom_bar(stat = "identity", position = "dodge")+
   coord_cartesian(ylim = c(0,100)) +
   scale_fill_brewer(palette = "Set1", name = "Disability Status", labels = c("No Disability", "Any Disability")) +
-  scale_x_discrete(labels = c("American \nIndian \nor Alaska \nNative", "Native \nHawaiian \nor Other \nPacific \nIslander", "Black", "White", "Asian", "Hispanic", "Other / \nMultirace"))+
   ggtitle("Prevalence of Disabilities by Race/Ethnicity") +
   theme_clean()+
   xlab("Race/Ethnicity") +
-  ylab("Prevalence (%)")
+  ylab("Prevalence (%)") +
+  scale_x_discrete(labels = c("American \nIndian \nor Alaska \nNative", "Asian", "Black", "Hispanic", "Native \nHawaiian \nor Other \nPacific \nIslander", "Other / \nMultirace", "White"))
 
 ```
 
@@ -444,7 +444,8 @@ table_final %>%
   xlab("\nDisability Type")+
   ylab("Percent Employed\n")+
   coord_cartesian(ylim = c(0, 100)) +
-  scale_x_discrete(labels = c("No Disability", "Any \nDisability", "Visual", "Hearing", "Ambulatory", "Cognitive", "Self-Care", "Independent \nLiving"))
+  scale_x_discrete(labels = c("No Disability", "Any \nDisability", "Visual", "Hearing", 
+                  "Ambulatory", "Cognitive", "Self-Care", "Independent \nLiving")) 
 ```
 
 ```{r}
